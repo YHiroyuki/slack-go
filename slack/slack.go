@@ -26,11 +26,7 @@ func (s *Slack) AddUsers(users ...string) {
 	s.Users = append(s.Users, users...)
 }
 
-func (s *Slack) Post() {
-	if s.Text == "" {
-		return
-	}
-
+func (s *Slack) generatePostData() map[string]string {
 	text := ""
 	if len(s.Users) != 0 {
 		text += "<@" + strings.Join(s.Users, "> <@") + "> "
@@ -46,7 +42,16 @@ func (s *Slack) Post() {
 	if s.Channel != "" && strings.HasPrefix(s.Channel, "#") {
 		postData["channel"] = s.Channel
 	}
-	postJson, err := json.Marshal(postData)
+
+	return postData
+}
+
+func (s *Slack) Post() {
+	if s.Text == "" {
+		return
+	}
+
+	postJson, err := json.Marshal(s.generatePostData())
 	if err != nil {
 		fmt.Println(err)
 	}
